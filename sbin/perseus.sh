@@ -35,6 +35,8 @@ echo -0 > /sys/class/misc/wolfson_control/eq_sp_gain_5
 echo 1 > /sys/class/misc/wolfson_control/switch_eq_speaker
 
 echo 480 > /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_max_lock
+echo 50 > /sys/class/devfreq/exynos5-busfreq-mif/polling_interval
+echo 70 > /sys/class/devfreq/exynos5-busfreq-mif/time_in_state/upthreshold
 
 if [ ! -f /system/app/STweaks.apk ]; then
   cat /res/STweaks.apk > /system/app/STweaks.apk
