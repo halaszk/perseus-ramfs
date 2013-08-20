@@ -6,6 +6,7 @@ echo '<settingsRoot>'
 . /res/customconfig/customconfig.xml.generate.gpu
 . /res/customconfig/customconfig.xml.generate.screen
 . /res/customconfig/customconfig.xml.generate.audio
+. /res/customconfig/customconfig.xml.generate.battery
 . /res/customconfig/customconfig.xml.generate.led
 . /res/customconfig/customconfig.xml.generate.io
 
