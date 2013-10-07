@@ -1,5 +1,3 @@
-#!/sbin/busybox sh
-
 case $((`cat /sys/devices/platform/sec-battery/power_supply/battery/batt_charging_source`)) in
 
 0)	echo "Unknown source"
