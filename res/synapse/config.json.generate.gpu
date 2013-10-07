@@ -22,6 +22,12 @@ cat << CTAG
 `
 		]
 	}},
+	{ SCheckBox:{
+		description:"If enabled, the GPU ignores the normal DVFS policies and voltages, and uses hard-coded entries when waking out of clock-gating. The respective lock is 266MHz and 900mV.",
+		label:"GPU wakeup state locking",
+		default:`cat /sys/module/pvrsrvkm/parameters/sec_wakeup_lock_state`,
+                action:"generic /sys/module/pvrsrvkm/parameters/sec_wakeup_lock_state"
+	}},
 	{ SPane:{ title:"GPU voltage control" }},
 `
 while read FREQ VOLT; do

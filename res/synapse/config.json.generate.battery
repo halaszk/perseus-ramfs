@@ -162,6 +162,17 @@ cat << CTAG
 		default:`cat /sys/devices/platform/sec-battery/wpc_chrg_curr`,
                 action:"generic /sys/devices/platform/sec-battery/wpc_chrg_curr"
 	}}
+
+	{ SPane:{ 
+		title:"Charging logic",
+	}},
+
+	{ SCheckBox:{
+		description:"If disabled, the charger chip will ignore unstable currents. Use at risk of your charger or charging ports.",
+		label:"Unstable power detection",
+		default:`cat /sys/devices/platform/sec-battery/unstable_power_detection`,
+                action:"generic /sys/devices/platform/sec-battery/unstable_power_detection"
+	}},
     ]
 }
 CTAG
