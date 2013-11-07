@@ -21,7 +21,7 @@
 /dev/video38              0660   media      camera
 
 /dev/video34              0660   system     system
-/dev/v4l-subdev*          0660   system     system
+/dev/v4l-subdev*          0660   system     camera
 /dev/media0               0660   system     camera
 /dev/media1               0660   system     camera
 
@@ -43,8 +43,6 @@
 /dev/video18              0660   system     system
 /dev/video19              0660   system     system
 
-# FIMG2D
-/dev/fimg2d               0666   system     graphics
 
 # JPEG
 /dev/video11              0660   media      media

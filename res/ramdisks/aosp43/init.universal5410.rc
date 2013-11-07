@@ -15,14 +15,15 @@ on init
     chown system system /persdata/absolute
     chmod 0750 /persdata/absolute
 
+    #main stuff
     mkdir /mnt/shell/emulated 0700 shell shell
+    mkdir /storage 0550 system sdcard_r
     mkdir /storage/emulated 0555 root root
-
-    mkdir /storage/sdcard1 0000 system system
-    mkdir /storage/usbdisk 0000 system system
+    mkdir /storage/sdcard1 0775 system system
+    mkdir /storage/usbdisk 0775 system system
 
     export EXTERNAL_STORAGE /storage/emulated/legacy
-    export SECONDARY_STORAGE /storage/sdcard1:/storage/usbdisk
+    export SECONDARY_STORAGE /storage/sdcard1
     export EMULATED_STORAGE_SOURCE /mnt/shell/emulated
     export EMULATED_STORAGE_TARGET /storage/emulated
 
@@ -48,6 +49,15 @@ on init
 
     symlink /dev/block/mmcblk0p8 /dev/block/param
 
+on fs
+    mkdir /preload
+    mount_all /fstab.universal5410
+
+    setprop ro.crypto.fuse_sdcard true
+
+    chown radio system /efs
+    chmod 0771 /efs
+
 on post-fs
     # Increase max readahead size to 256 KB
     write /sys/block/mmcblk0/queue/read_ahead_kb 256
@@ -56,14 +66,12 @@ on post-fs
     chmod 0664 /sys/block/mmcblk0/bkops_en
 
 on post-fs-data
-    mkdir /data/media 0770 media_rw media_rw
+    mkdir /data/media 0775 media_rw media_rw
     chown media_rw media_rw /data/media
 
 # SA, System SW, SAMSUNG create log directory
     mkdir /data/log 0775 system log
     mkdir /data/anr 0775 system system
-    restorecon /data/log
-    restorecon /data/anr
     chown system log /data/log
     setprop vold.post_fs_data_done 1
 
@@ -71,6 +79,7 @@ on post-fs-data
     chmod 0775 /data/anr
 
     mkdir /data/misc/radio 0775 radio system
+    chmod 0775 /data/misc/radio
     mkdir /efs/imei 0775 radio system
 
 # Permissions for bluetooth
@@ -79,70 +88,11 @@ on post-fs-data
     chmod 0660 /sys/class/rfkill/rfkill0/state
     chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
     chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
-
-#[ SEC_MM_DRM
-
-    # DRM directory creation
-    mkdir /system/etc/security/.drm 0775
-    chown root root /system/etc/security/.drm
-    chmod 0775 /system/etc/security/.drm
-    restorecon /system/etc/security/.drm
-
-    # Added for Playready DRM Support
-    mkdir /data/data/.drm 0775
-    chown drm system /data/data/.drm
-    chmod 0775 /data/data/.drm
-    mkdir /data/data/.drm/.playready 0775
-    chown drm system /data/data/.drm/.playready
-    chmod 0775 /data/data/.drm/.playready
-
-    # Added drm folder to copy drm plugins
-    mkdir /system/lib/drm 0775
-    chown root root /system/lib/drm
-    chmod 0775 /system/lib/drm
-    restorecon /system/lib/drm
-
-    # DivX DRM
-    mkdir /efs/.files 0775
-    mkdir /efs/.files/.dx1 0775
-    mkdir /efs/.files/.dm33 0775
-    mkdir /efs/.files/.mp301 0775
-    chown media system /efs/.files/.dx1
-    chown media system /efs/.files/.dm33
-    chown media system /efs/.files/.mp301
-    chmod 0775 /efs/.files/.dx1
-    chmod 0775 /efs/.files/.dm33
-    chmod 0775 /efs/.files/.mp301
-
-# SEAndroid Restore context for efs files
-    restorecon -R /efs
-# SEAndroid: it should be set 1 to pass CTS
-    setsebool android_cts=1
-    setsebool debugfs=1
-#]
-
-#-----------------------------------------------------------------------
-
-on boot
-    mount debugfs /sys/kernel/debug /sys/kernel/debug
-
-    # Reduce reserved lowmem from ~48MB to ~12MB
-    write /proc/sys/vm/lowmem_reserve_ratio "128 128"
-
-    # Set up kernel tracing, but disable it by default
-    chmod 0222 /sys/kernel/debug/tracing/trace_marker
-    write /sys/kernel/debug/tracing/tracing_on 0
-
-    setprop ro.build.product universal_5410
-    setprop ro.product.device universal_5410
-
-    # 4.3 needs this
-    chmod 0644 /proc/cmdline
+    restorecon /sys/class/rfkill/rfkill0/state
+    restorecon /sys/class/rfkill/rfkill0/type
 
 # Permissions for TouchScreen
     chown system radio /sys/class/sec/tsp/cmd
-    chown system radio /sys/class/sec/sec_touchkey/glove_mode
-    chown system radio /sys/class/sec/sec_touchkey/flip_mode
 
 # Permissions for Touchkey
     chown system radio /sys/class/sec/sec_touchkey/enable_disable
@@ -379,51 +329,32 @@ on boot
     chmod 0660 /dev/usb_mtp_gadget
     chown system system /dev/usb_mtp_gadget
 
-    chown system system /sys/class/timed_output/vibrator/enable
+    chmod 0660 /sys/class/timed_output/vibrator/pwm_value
+    chown system system /sys/class/timed_output/vibrator/pwm_value
 
 # Torch
     chown system system /sys/class/leds/torch-sec1/brightness
-    chmod 0666 /sys/class/leds/torch-sec1/brightness
-
-on fs
-    mount_all /fstab.universal5410
-    setprop ro.crypto.fuse_sdcard true
-
-    chown radio system /efs
-    chmod 0771 /efs
-    chown radio radio /sys/devices/virtual/misc/multipdp/waketime
-    chmod 0660 /sys/devices/virtual/misc/umts_dm0/dm_state
-    chown radio system /sys/devices/virtual/misc/umts_dm0/dm_state
-
-# Permissions for backlight
-    chown system system /sys/class/backlight/panel/brightness
-    chown system system /sys/class/backlight/panel/auto_brightness
+    chmod 0666 /sys/class/leds/torch-sec1/brightness    
 
 # Permissions for LCD
+    chown system radio /sys/class/lcd/panel/lcd_power
     chown system radio /sys/class/lcd/panel/lcd_type
-    chown system system /sys/class/lcd/panel/power_reduce
-    chown system system /sys/class/lcd/panel/siop_enable
+    chown system radio /sys/class/lcd/panel/device/hs_toggle
+    chown system media_rw /sys/class/lcd/panel/power_reduce
+    chown system system /sys/class/backlight/panel/auto_brightness
+    chown system system /sys/class/backlight/panel/brightness
     chown system system /sys/class/graphics/fb0/lcdfreq/level
-    chown system system /sys/class/lcd/panel/temperature
 
 # Permissions for MDNIE
     chown system system /sys/class/mdnie/mdnie/mode
     chown system media_rw /sys/class/mdnie/mdnie/scenario
     chown system system /sys/class/mdnie/mdnie/accessibility
 
-# Permissions for Gscaler log level
-    chmod 0644 /sys/module/gsc/parameters/gsc_dbg
-
-# Switch Device
-    chown system radio /sys/class/sec/switch/uart_sel
-    chown system radio /sys/class/sec/switch/usb_sel
-    chown system radio /sys/class/sec/switch/usb_state
-    chown system radio /sys/class/sec/switch/chg_type
-
 # Audio (Earjack)
     chown system radio /sys/class/audio/earjack/select_jack
     chown system radio /sys/class/audio/earjack/key_state
     chown system radio /sys/class/audio/earjack/state
+    chown media system /sys/class/audio/earjack/reselect_jack
 
 # Audio 2 MIC (Audience)
     chown media audio /sys/class/2mic/es325/preset
@@ -441,6 +372,19 @@ on fs
     rm /data/glonass_started
     rm /data/smd_started
     rm /data/sv_cno.info
+
+
+
+on boot
+    mount debugfs /sys/kernel/debug /sys/kernel/debug
+
+    setprop ro.build.product universal_5410
+    setprop ro.product.device universal_5410
+
+    # 4.3 needs this
+    chmod 0644 /proc/cmdline
+
+
 
 # create filesystem if necessary
 service setup_fs /system/bin/setup_fs \

@@ -14,13 +14,31 @@ mount -t sysfs sysfs /sys
 
 loadRamdisk () {
 	umount -f /system
-	mv -f /res/ramdisks/$1/* /
-
 	rm /init
-	mv -f /init.0 /init
+	mv -f /res/ramdisks/$1/* /
 
 	exec /init
 	exit
+}
+
+prepareKnox () {
+	BP="/system/build.prop"
+
+	if grep -q ro.config.tima=1 $BP; then
+		sed -i "s/ro.config.tima=1/ro.config.tima=0/g" $BP
+	fi
+
+	if grep -q ro.build.selinux=1 $bp; then
+		sed -i "s/ro.build.selinux=1/ro.build.selinux=0/g" $BP
+	fi
+
+	APKS="KNOXAgent.apk KNOXAgent.odex KnoxAttestationAgent.apk KnoxAttestationAgent.odex KNOXStore.apk KNOXStore.odex KNOXStub.apk ContainerAgent.apk ContainerAgent.odex"
+
+	for APK in $APKS; do
+		if [ -f /system/app/$APK ]; then
+			rm /system/app/$APK
+		fi
+	done
 }
 
 mkdir /dev
@@ -29,18 +47,24 @@ mknod /dev/block/mmcblk0p20 b 259 12
 mount -t ext4 /dev/block/mmcblk0p20 /system
 
 if grep -q 1 /sys/class/power_supply/battery/batt_lp_charging ; then
-	loadRamdisk sec422
+	loadRamdisk sec43
 fi
 
 if [ -f /system/framework/twframework.jar ]; then
-	if grep -q ro.build.version.release=4.2.2 /system/build.prop; then
-		loadRamdisk sec422
+	if grep -q ro.build.version.release=4.3 /system/build.prop; then
+		prepareKnox
+		loadRamdisk sec43
 	fi
+
+	loadRamdisk sec43
 else
 	if grep -q ro.build.version.release=4.3 /system/build.prop; then
-		cp -a /lib/modules/* /system/modules/
+		cp -a /lib/modules/* /system/lib/modules/
 		loadRamdisk aosp43
 	fi
+
+	cp -a /lib/modules/* /system/lib/modules/
+	loadRamdisk aosp43
 fi
 
 
