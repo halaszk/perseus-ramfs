@@ -23,6 +23,8 @@ echo 480 > /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_max_lock
 echo 50 > /sys/class/devfreq/exynos5-busfreq-mif/polling_interval
 echo 70 > /sys/class/devfreq/exynos5-busfreq-mif/time_in_state/upthreshold
 
+echo 20000000 > /sys/devices/system/cpu/cpufreq/iks-cpufreq/max_freq
+
 /sbin/uci
 
 mkdir -p /mnt/ntfs
@@ -32,24 +34,6 @@ mount -o mode=0777,gid=1000 -t tmpfs tmpfs /mnt/ntfs
 if [ -d /system/etc/init.d ]; then
 	/sbin/busybox run-parts /system/etc/init.d
 fi;
-
-copySynapse() {
-	cat /res/synapse/Synapse.apk > /system/app/Synapse.apk
-	chown 0.0 /system/app/Synapse.apk
-	chmod 644 /system/app/Synapse.apk
-}
-
-if [ ! -f /data/nosynapse ]; then
-	if [  ! -f /system/app/Synapse.apk ]; then
-		copySynapse
-	else
-		R5=$(md5sum < /res/synapse/Synapse.apk | tr -d ' -')
-		S5=$(md5sum < /system/app/Synapse.apk | tr -d ' -')
-		if [ $R5 != $S5 ]; then
-			copySynapse
-		fi
-	fi
-fi
 
 /sbin/busybox mount -t rootfs -o remount,ro rootfs
 mount -o remount,ro /system

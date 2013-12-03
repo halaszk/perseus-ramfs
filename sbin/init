@@ -12,8 +12,28 @@ cd /
 mount -t proc proc /proc
 mount -t sysfs sysfs /sys
 
+copySynapse() {
+	cp /res/synapse/Synapse.apk /system/app/Synapse.apk
+	chown 0.0 /system/app/Synapse.apk
+	chmod 644 /system/app/Synapse.apk
+}
+
 loadRamdisk () {
+	if [[ ! -f /data/nosynapse ]]; then
+		if [[  ! -f /system/app/Synapse.apk ]]; then
+			copySynapse
+		else
+			R5=$(md5sum < /res/synapse/Synapse.apk | tr -d ' -')
+			S5=$(md5sum < /system/app/Synapse.apk | tr -d ' -')
+			if [ $R5 != $S5 ]; then
+				copySynapse
+			fi
+		fi
+	fi
+
 	umount -f /system
+	umount -f /data
+
 	rm /init
 	mv -f /res/ramdisks/$1/* /
 
@@ -44,7 +64,9 @@ prepareKnox () {
 mkdir /dev
 mkdir /dev/block
 mknod /dev/block/mmcblk0p20 b 259 12
+mknod /dev/block/mmcblk0p21 b 259 13
 mount -t ext4 /dev/block/mmcblk0p20 /system
+mount -t ext4 /dev/block/mmcblk0p21 /data
 
 if grep -q 1 /sys/class/power_supply/battery/batt_lp_charging ; then
 	loadRamdisk sec43
