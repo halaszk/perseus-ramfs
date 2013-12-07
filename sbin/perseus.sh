@@ -23,8 +23,6 @@ echo 480 > /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_max_lock
 echo 50 > /sys/class/devfreq/exynos5-busfreq-mif/polling_interval
 echo 70 > /sys/class/devfreq/exynos5-busfreq-mif/time_in_state/upthreshold
 
-echo 20000000 > /sys/devices/system/cpu/cpufreq/iks-cpufreq/max_freq
-
 /sbin/uci
 
 mkdir -p /mnt/ntfs

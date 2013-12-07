@@ -353,6 +353,14 @@ on boot
     chown radio system /sys/devices/platform/exynos5-tmu/temp
     chown radio system /sys/devices/platform/exynos5-tmu/curr_temp
 
+# Power savings mode
+    chown radio system /sys/devices/system/cpu/cpufreq/iks-cpufreq/min_freq
+    chown radio system /sys/devices/system/cpu/cpufreq/iks-cpufreq/max_freq
+    chown radio system /sys/devices/system/cpu/cpufreq/iks-cpufreq/freq_table
+    chmod 0664 /sys/devices/system/cpu/cpufreq/iks-cpufreq/min_freq
+    chmod 0664 /sys/devices/system/cpu/cpufreq/iks-cpufreq/max_freq
+    chmod 0664 /sys/devices/system/cpu/cpufreq/iks-cpufreq/freq_table
+
 # AMOLED Color Adjustment
     chown radio system /sys/class/power_supply/battery/temp
     chown radio system /sys/class/lcd/panel/temperature
@@ -582,8 +590,8 @@ service iprenew_bt-pan /system/bin/dhcpcd -n
     oneshot
 
 # To reduce power consumption when setupwizard is running
-on property:persist.sys.setupwizard=START
-        write /sys/power/cpufreq_max_limit 1000000
+# on property:persist.sys.setupwizard=START
+#        write /sys/power/cpufreq_max_limit 1000000
 
-on property:persist.sys.setupwizard=FINISH
-        write /sys/power/cpufreq_max_limit 1600000
+# on property:persist.sys.setupwizard=FINISH
+#        write /sys/power/cpufreq_max_limit 1600000
